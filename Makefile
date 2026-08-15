@@ -74,7 +74,7 @@ setup: $(VENV)/bin/python link
 
 $(VENV)/bin/python:
 	uv venv $(VENV)
-	VIRTUAL_ENV=$(VENV) uv pip install pytest python-dateutil
+	VIRTUAL_ENV=$(VENV) uv pip install -r requirements.txt
 
 # datehog is a sibling package, not yet published; link it so `@local/datehog`
 # resolves. Becomes `@preview/datehog` once it is on Typst Universe.

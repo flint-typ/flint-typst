@@ -1,0 +1,18 @@
+# Python dependencies for the test harness.
+#
+# Deliberately tiny. The harnesses (`test/differential.py`,
+# `test/conformance.py`, `test/make_corpus.py`, `test/gen_tables.py`) are plain
+# scripts driven by `test/run.sh` — no pytest, no test framework. The only
+# third-party import comes in transitively: they import upstream `flint-py` to
+# compare against, and its `js_date` module needs `dateutil`.
+#
+# `flint-py` itself is not installed from PyPI. It is imported from the
+# upstream clone by path (`make upstream`), so the comparison always runs
+# against the exact source the corpus was recorded from.
+#
+#   make setup     create .venv and install this
+#
+# One pinned dependency does not justify a lock file; if this list ever grows
+# past a handful, switch to `uv pip compile` and commit the lock instead.
+
+python-dateutil==2.9.0.post0
