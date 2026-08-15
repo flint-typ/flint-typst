@@ -1,0 +1,20 @@
+{
+  "generated_from": "../flint-source/shared/test-data",
+  "traced_functions": [
+    "convert_temporal_data",
+    "resolve_channel_semantics",
+    "compute_channel_budgets",
+    "filter_overflow",
+    "compute_layout"
+  ],
+  "cases": 705,
+  "unported_chart_types": 0,
+  "calls_recorded": {
+    "compute_channel_budgets": 705,
+    "compute_layout": 705,
+    "convert_temporal_data": 705,
+    "filter_overflow": 705,
+    "resolve_channel_semantics": 1410
+  },
+  "failed": []
+}

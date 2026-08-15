@@ -1,0 +1,254 @@
+{
+    "version": "1.1.411",
+    "time": "1786745872504",
+    "generalDiagnostics": [
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"Unknown | Any | None\" cannot be assigned to parameter \"value\" of type \"str\" in function \"__setitem__\"\n  Type \"Unknown | Any | None\" is not assignable to type \"str\"\n    \"None\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 218,
+                    "character": 8
+                },
+                "end": {
+                    "line": 218,
+                    "character": 27
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Operator \">\" not supported for \"None\"",
+            "range": {
+                "start": {
+                    "line": 310,
+                    "character": 16
+                },
+                "end": {
+                    "line": 310,
+                    "character": 34
+                }
+            },
+            "rule": "reportOptionalOperand"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"Any | None\" cannot be assigned to parameter \"x\" of type \"_SupportsFloatOrIndex\" in function \"isfinite\"\n  Type \"Any | None\" is not assignable to type \"_SupportsFloatOrIndex\"\n    Type \"None\" is not assignable to type \"_SupportsFloatOrIndex\"\n      \"None\" is incompatible with protocol \"SupportsFloat\"\n        \"__float__\" is not present\n      \"None\" is incompatible with protocol \"SupportsIndex\"\n        \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 310,
+                    "character": 57
+                },
+                "end": {
+                    "line": 310,
+                    "character": 75
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"list[Any | None]\" cannot be assigned to parameter \"iterable\" of type \"Iterable[SupportsRichComparisonT@max]\" in function \"max\"\n  \"list[Any | None]\" is not assignable to \"Iterable[SupportsRichComparisonT@max]\"\n    Type parameter \"_T_co@Iterable\" is covariant, but \"Any | None\" is not a subtype of \"SupportsRichComparisonT@max\"\n      Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n        Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n          Type \"None\" is not assignable to type \"SupportsRichComparison\"",
+            "range": {
+                "start": {
+                    "line": 314,
+                    "character": 33
+                },
+                "end": {
+                    "line": 314,
+                    "character": 37
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"list[Any | None]\" cannot be assigned to parameter \"iterable\" of type \"Iterable[SupportsRichComparisonT@min]\" in function \"min\"\n  \"list[Any | None]\" is not assignable to \"Iterable[SupportsRichComparisonT@min]\"\n    Type parameter \"_T_co@Iterable\" is covariant, but \"Any | None\" is not a subtype of \"SupportsRichComparisonT@min\"\n      Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n        Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n          Type \"None\" is not assignable to type \"SupportsRichComparison\"",
+            "range": {
+                "start": {
+                    "line": 314,
+                    "character": 57
+                },
+                "end": {
+                    "line": 314,
+                    "character": 61
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Operator \">\" not supported for \"None\"",
+            "range": {
+                "start": {
+                    "line": 1035,
+                    "character": 16
+                },
+                "end": {
+                    "line": 1035,
+                    "character": 34
+                }
+            },
+            "rule": "reportOptionalOperand"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"Any | None\" cannot be assigned to parameter \"x\" of type \"_SupportsFloatOrIndex\" in function \"isfinite\"\n  Type \"Any | None\" is not assignable to type \"_SupportsFloatOrIndex\"\n    Type \"None\" is not assignable to type \"_SupportsFloatOrIndex\"\n      \"None\" is incompatible with protocol \"SupportsFloat\"\n        \"__float__\" is not present\n      \"None\" is incompatible with protocol \"SupportsIndex\"\n        \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 1035,
+                    "character": 57
+                },
+                "end": {
+                    "line": 1035,
+                    "character": 75
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"list[Any | None]\" cannot be assigned to parameter \"iterable\" of type \"Iterable[SupportsRichComparisonT@max]\" in function \"max\"\n  \"list[Any | None]\" is not assignable to \"Iterable[SupportsRichComparisonT@max]\"\n    Type parameter \"_T_co@Iterable\" is covariant, but \"Any | None\" is not a subtype of \"SupportsRichComparisonT@max\"\n      Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n        Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n          Type \"None\" is not assignable to type \"SupportsRichComparison\"",
+            "range": {
+                "start": {
+                    "line": 1039,
+                    "character": 33
+                },
+                "end": {
+                    "line": 1039,
+                    "character": 37
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"list[Any | None]\" cannot be assigned to parameter \"iterable\" of type \"Iterable[SupportsRichComparisonT@min]\" in function \"min\"\n  \"list[Any | None]\" is not assignable to \"Iterable[SupportsRichComparisonT@min]\"\n    Type parameter \"_T_co@Iterable\" is covariant, but \"Any | None\" is not a subtype of \"SupportsRichComparisonT@min\"\n      Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n        Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n          Type \"None\" is not assignable to type \"SupportsRichComparison\"",
+            "range": {
+                "start": {
+                    "line": 1039,
+                    "character": 57
+                },
+                "end": {
+                    "line": 1039,
+                    "character": 61
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Operator \">\" not supported for \"None\"",
+            "range": {
+                "start": {
+                    "line": 1209,
+                    "character": 16
+                },
+                "end": {
+                    "line": 1209,
+                    "character": 34
+                }
+            },
+            "rule": "reportOptionalOperand"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"Any | None\" cannot be assigned to parameter \"x\" of type \"_SupportsFloatOrIndex\" in function \"isfinite\"\n  Type \"Any | None\" is not assignable to type \"_SupportsFloatOrIndex\"\n    Type \"None\" is not assignable to type \"_SupportsFloatOrIndex\"\n      \"None\" is incompatible with protocol \"SupportsFloat\"\n        \"__float__\" is not present\n      \"None\" is incompatible with protocol \"SupportsIndex\"\n        \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 1209,
+                    "character": 57
+                },
+                "end": {
+                    "line": 1209,
+                    "character": 75
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"list[Any | None]\" cannot be assigned to parameter \"iterable\" of type \"Iterable[SupportsRichComparisonT@max]\" in function \"max\"\n  \"list[Any | None]\" is not assignable to \"Iterable[SupportsRichComparisonT@max]\"\n    Type parameter \"_T_co@Iterable\" is covariant, but \"Any | None\" is not a subtype of \"SupportsRichComparisonT@max\"\n      Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n        Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n          Type \"None\" is not assignable to type \"SupportsRichComparison\"",
+            "range": {
+                "start": {
+                    "line": 1213,
+                    "character": 33
+                },
+                "end": {
+                    "line": 1213,
+                    "character": 37
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/compute_layout.py",
+            "severity": "error",
+            "message": "Argument of type \"list[Any | None]\" cannot be assigned to parameter \"iterable\" of type \"Iterable[SupportsRichComparisonT@min]\" in function \"min\"\n  \"list[Any | None]\" is not assignable to \"Iterable[SupportsRichComparisonT@min]\"\n    Type parameter \"_T_co@Iterable\" is covariant, but \"Any | None\" is not a subtype of \"SupportsRichComparisonT@min\"\n      Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n        Type \"Any | None\" is not assignable to type \"SupportsRichComparison\"\n          Type \"None\" is not assignable to type \"SupportsRichComparison\"",
+            "range": {
+                "start": {
+                    "line": 1213,
+                    "character": 57
+                },
+                "end": {
+                    "line": 1213,
+                    "character": 61
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/field_semantics.py",
+            "severity": "error",
+            "message": "Argument of type \"list[int | float]\" cannot be assigned to parameter \"values\" of type \"list[float]\" in function \"resolve_scale_type\"\n  \"list[int | float]\" is not assignable to \"list[float]\"\n    Type parameter \"_T@list\" is invariant, but \"int | float\" is not the same as \"float\"\n    Consider switching from \"list\" to \"Sequence\" which is covariant",
+            "range": {
+                "start": {
+                    "line": 565,
+                    "character": 51
+                },
+                "end": {
+                    "line": 565,
+                    "character": 65
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/home/mitc/.local/share/typst/packages/flint-typst/flint-source/packages/flint-py/flint/core/resolve_semantics.py",
+            "severity": "error",
+            "message": "Argument of type \"list[int | float]\" cannot be assigned to parameter \"values\" of type \"list[float]\" in function \"resolve_diverging_info\"\n  \"list[int | float]\" is not assignable to \"list[float]\"\n    Type parameter \"_T@list\" is invariant, but \"int | float\" is not the same as \"float\"\n    Consider switching from \"list\" to \"Sequence\" which is covariant",
+            "range": {
+                "start": {
+                    "line": 432,
+                    "character": 81
+                },
+                "end": {
+                    "line": 432,
+                    "character": 85
+                }
+            },
+            "rule": "reportArgumentType"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 13,
+        "errorCount": 15,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 1.054
+    }
+}
+

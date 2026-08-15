@@ -1,0 +1,5 @@
+{
+  "include": ["../flint-source/packages/flint-py/flint/core"],
+  "typeCheckingMode": "basic",
+  "pythonVersion": "3.10"
+}
