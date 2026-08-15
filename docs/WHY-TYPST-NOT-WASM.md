@@ -2,7 +2,7 @@
 
 Measured against Typst **0.15.1** on this machine. Re-runnable:
 `make typst-probes` (capability probes) and the `bench-*.typ` files in
-`test/typst-probes/`. Probes named `*-GAP.typ` are *expected to fail* — if one starts
+`tests/typst-probes/`. Probes named `*-GAP.typ` are *expected to fail* — if one starts
 passing, Typst gained a capability and this document is stale.
 
 **Conclusion: pure Typst is the better default.** An earlier draft of this

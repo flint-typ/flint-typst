@@ -194,7 +194,7 @@ Verified working. `src/core/replay.typ` mirrors `rust/src/bin/replay.rs`: read a
 recorded case, dispatch each recorded call to the matching stage, return results
 in the same shape.
 
-`test/conformance.py` decompresses a corpus case, shells out to `typst eval`,
+`tests/conformance.py` decompresses a corpus case, shells out to `typst eval`,
 and diffs against the recorded result — reusing `validate/check_conformance.py`'s
 differ verbatim, including its two deliberate strictnesses (`bool` compared
 before `int`; int-vs-float a failure, not a rounding artefact) and the
@@ -216,7 +216,7 @@ gates are not, thanks to §8.
 | # | phase | modules | LOC | gate |
 |---|---|---|---|---|
 | 0 | **date package** | ✅ `datehog` (sibling package) | 664 | ✅ done — see below |
-| 0b | **harness** | `replay.typ`, `test/conformance.py` | ~150 | runs, reports all-skipped |
+| 0b | **harness** | `replay.typ`, `tests/conformance.py` | ~150 | runs, reports all-skipped |
 | 1 | **leaves** | `types`, `js-round`, `type-registry`, `encoding-overrides`, `encoding-actions`, `color-decisions` | 402 | — |
 | 2 | **semantic types** | `semantic-types` | 549 | — |
 | 3 | **js-date** | `js-date` | 198 | spot-test vs Python |
@@ -328,7 +328,7 @@ no layout from us at all.
   with reference images. Value tests for core, image tests for the backend; the
   two should stay separate suites.
 - **A top-level Makefile** governing test and deploy across both packages
-  (`flint-typst`, `datehog`) — today each has its own `test/run.sh` and the
+  (`flint-typst`, `datehog`) — today each has its own `tests/run.sh` and the
   transpile tooling has its own `Makefile`. Fold them into one entry point,
   including the `@local` → `@preview` package-publish step.
 

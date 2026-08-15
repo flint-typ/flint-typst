@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # flint-typst test suite.
 #
-#   ./test/run.sh             everything
-#   ./test/run.sh differential  just the per-function differential
+#   ./tests/run.sh             everything
+#   ./tests/run.sh differential  just the per-function differential
 #
 # PY can point at a venv with flint-py's dependencies installed:
 #   make test
@@ -16,20 +16,31 @@ fail=0
 
 if [[ $only == all || $only == generated ]]; then
   echo "== generated tables up to date =="
-  $PY test/gen_tables.py --check || fail=1
+  $PY tests/gen_tables.py --check || fail=1
   echo
 fi
 
 if [[ $only == all || $only == differential ]]; then
   echo "== differential vs flint-py (per function) =="
-  $PY test/differential.py || fail=1
+  $PY tests/differential.py || fail=1
+  echo
+fi
+
+if [[ $only == all || $only == backend ]]; then
+  echo "== backend: every chart type assembles and renders =="
+  out=$(mktemp -d); trap 'rm -rf "$out"' EXIT
+  if typst compile --root . --format pdf tests/smoke-check.typ "$out/smoke.pdf" 2>"$out/err"; then
+    echo "   pass"
+  else
+    sed 's/^/   /' "$out/err"; fail=1
+  fi
   echo
 fi
 
 if [[ $only == all || $only == conformance ]]; then
   echo "== conformance vs the 705-case corpus (pipeline stages) =="
-  if [[ -d test/corpus ]]; then
-    $PY test/conformance.py || fail=1
+  if [[ -d tests/corpus ]]; then
+    $PY tests/conformance.py || fail=1
   else
     echo "   corpus missing -- run: make corpus"
     fail=1

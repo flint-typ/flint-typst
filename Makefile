@@ -1,6 +1,8 @@
 # flint-typst — test, benchmark, release.
 #
-#   make test         everything (generated tables, differential, conformance)
+#   make test         value tests (generated tables, differential, backend, conformance)
+#   make visual       reference-image tests for the lilaq backend (tytanic)
+#   make visual-update  regenerate the reference images after an intended change
 #   make differential just the per-function comparison against flint-py
 #   make conformance  just the 705-case corpus replay
 #   make probes       re-check Typst's capabilities (after a Typst upgrade)
@@ -22,27 +24,55 @@ FLINT_PY := $(UPSTREAM)/packages/flint-py
 FIXTURES := $(UPSTREAM)/shared/test-data
 DATEHOG  := $(HOME)/.local/share/typst/packages/local/datehog
 
-.PHONY: all test differential conformance generated probes bench corpus tables setup link upstream clean
+.PHONY: all test differential conformance generated backend gallery visual visual-update visual-new probes bench corpus tables setup link upstream clean
 
 all: test
 
 # ---------------------------------------------------------------- testing ---
 test:
-	PY=$(PY) ./test/run.sh
+	PY=$(PY) ./tests/run.sh
 
 differential:
-	PY=$(PY) ./test/run.sh differential
+	PY=$(PY) ./tests/run.sh differential
 
 conformance:
-	PY=$(PY) ./test/run.sh conformance
+	PY=$(PY) ./tests/run.sh conformance
+
+backend:
+	PY=$(PY) ./tests/run.sh backend
+
+# ------------------------------------------------------------ visual tests ---
+# The value suites check that core's *decisions* match flint-py; these check
+# that the backend turns those decisions into the right picture. They caught two
+# bugs the value tests structurally cannot see: bars clipped at the frame, and a
+# grouped bar chart drawing its series on top of each other instead of dodged.
+#
+# `tt update` is the only thing that may write into `ref/` — never hand-edit a
+# reference. After an intended visual change, run `make visual-update` and *look
+# at the diff* before committing it.
+visual:
+	tt run
+
+visual-update:
+	tt update
+	@echo "references updated — inspect them before committing"
+
+visual-new:
+	@test -n "$(NAME)" || { echo "usage: make visual-new NAME=backend/my-test"; exit 1; }
+	tt new --type persistent "$(NAME)"
+
+# Renders every chart type to a PDF you can actually look at.
+gallery:
+	typst compile --root . --format pdf tests/gallery.typ gallery.pdf
+	@echo "-> gallery.pdf"
 
 generated:
-	PY=$(PY) ./test/run.sh generated
+	PY=$(PY) ./tests/run.sh generated
 
 # Capability probes behind docs/WHY-TYPST-NOT-WASM.md. A `*-GAP.typ` probe that
 # starts *passing* means Typst gained a capability and that document is stale.
 probes:
-	./test/typst-probes/run.sh
+	./tests/typst-probes/run.sh
 
 # ------------------------------------------------------------- benchmarks ---
 # Numbers land in bench/BENCH.md by hand — these just print them.
@@ -64,10 +94,10 @@ bench:
 # TZ=UTC is load-bearing: flint reads zoneless date strings in the *host* zone,
 # so 15 of the 705 fixtures would otherwise record machine-dependent values.
 corpus: | $(FLINT_PY)
-	TZ=UTC $(PY) test/make_corpus.py --flint-py $(FLINT_PY) --fixtures $(FIXTURES) -o test/corpus
+	TZ=UTC $(PY) tests/make_corpus.py --flint-py $(FLINT_PY) --fixtures $(FIXTURES) -o tests/corpus
 
 tables: | $(FLINT_PY)
-	$(PY) test/gen_tables.py
+	$(PY) tests/gen_tables.py
 
 # ------------------------------------------------------------------ setup ---
 setup: $(VENV)/bin/python link
@@ -91,4 +121,4 @@ $(FLINT_PY):
 	git clone --depth 1 https://github.com/microsoft/flint-chart.git $(UPSTREAM)
 
 clean:
-	rm -f test/_case.json test/_cases.json test/typst-probes/_*.typ bench/_*.typ
+	rm -f tests/_case.json tests/_cases.json tests/typst-probes/_*.typ bench/_*.typ

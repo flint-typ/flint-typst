@@ -9,8 +9,8 @@ It is a native Typst port of the core of
 [microsoft/flint-chart](https://github.com/microsoft/flint-chart), reproducing
 its behaviour exactly on a 705-fixture corpus.
 
-**Status: 0.1.0 — core complete, no backend yet.** The compiler works and is
-verified; nothing draws a chart with it so far.
+**Status: 0.2.0 — core complete, lilaq backend started.** Five chart types
+draw; flint defines twenty-three.
 
 | | |
 |---|---|
@@ -18,6 +18,24 @@ verified; nothing draws a chart with it so far.
 | functions verified against flint-py | 112 |
 | pipeline stages green on the 705-case corpus | 5 / 5 (4230 / 4230) |
 | differential cases | 19 874 / 19 889, with 15 registered divergences |
+| chart types drawing | 5 (bar, grouped bar, line, area, scatter) |
+
+```typst
+#import "@preview/flint-typst:0.2.0": chart
+
+#chart(
+  chart-type: "Bar Chart",
+  data: (("Month", "Revenue"), ("Mar", 14200), ("Jan", 12000), ("Feb", 15500)),
+  encodings: (x: "Month", y: "Revenue"),
+  semantic-types: (Month: "Month", Revenue: (semanticType: "Amount", unit: "USD")),
+)
+```
+
+That draws bars in calendar order (from the `Month` semantic type, not the row
+order), anchored at zero (because a bar reads by length and `Amount`'s baseline
+is meaningful), with `$2,500` tick labels (because `USD` makes it currency and
+the values carry no decimals). None of those is configured; they are what the
+compiler decided.
 
 ## What it does
 
@@ -36,9 +54,8 @@ or as little as it wants.
 
 ## Backends
 
-None yet. Intended, in order:
-
-- **[lilaq](https://typst.app/universe/package/lilaq)** — the primary target
+- **[lilaq](https://typst.app/universe/package/lilaq)** — started; bar, grouped
+  bar, line, area and scatter
 - **[primaviz](https://typst.app/universe/package/primaviz)** — broader chart-type
   coverage, and a good second consumer to prove the core boundary is genuinely
   backend-agnostic
@@ -68,16 +85,28 @@ make test
 
 Two harnesses, both value-based — `typst eval` in, JSON out, no images:
 
-- **`test/differential.py`** compares every ported function against flint-py
+- **`tests/differential.py`** compares every ported function against flint-py
   call for call. Catches leaf functions the corpus never reaches.
-- **`test/conformance.py`** replays a corpus recorded from flint-py's real
+- **`tests/conformance.py`** replays a corpus recorded from flint-py's real
   pipeline over 705 chart fixtures. The acceptance gate.
 
 Both matter. `resolve_channel_semantics` passed the corpus 1410/1410 on its
 first run while the differential found a genuine bug in date parsing.
 
-Rendering tests belong in [tytanic](https://github.com/tingerrr/tytanic) once a
-backend exists; these suites deliberately do not touch images.
+Rendering is tested separately, with [tytanic](https://github.com/tingerrr/tytanic):
+
+```sh
+make visual          # compare against the reference images
+make visual-update   # regenerate them after an intended change — then look
+```
+
+The split is deliberate. The value suites check that core's *decisions* match
+flint-py; the visual ones check that the backend turns those decisions into the
+right picture. The visual tests immediately caught four bugs the value suites
+structurally cannot see: bars clipped at the frame, a grouped bar chart drawing
+its series on top of one another, a line doubling back because the rows were
+unsorted, and a category axis stretched to the row count instead of the
+category count.
 
 Running the tests needs the upstream Python package for comparison:
 

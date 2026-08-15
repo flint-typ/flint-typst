@@ -6,9 +6,9 @@ flint-source/
 .venv/
 
 # Test and bench scratch
-test/_case.json
-test/_cases.json
-test/typst-probes/_*.typ
+tests/_case.json
+tests/_cases.json
+tests/typst-probes/_*.typ
 bench/_*.typ
 *.pdf
 __pycache__/

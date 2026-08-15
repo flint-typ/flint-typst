@@ -1,6 +1,6 @@
 [package]
 name = "flint-typst"
-version = "0.1.0"
+version = "0.2.0"
 entrypoint = "src/lib.typ"
 authors = ["Zral0kh"]
 license = "MIT"
@@ -8,4 +8,7 @@ description = "Semantic chart compiler for Typst — a port of microsoft/flint-c
 keywords = ["chart", "plot", "visualization", "lilaq", "prima-viz", "data"]
 categories = ["visualization"]
 compiler = "0.13.0"
-exclude = ["test", "transpile", "flint-source"]
+exclude = ["test", "tests", "bench", "docs", "flint-source", "Makefile", "requirements.txt"]
+
+[tool.tytanic]
+default.ppi = 72

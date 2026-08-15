@@ -247,7 +247,7 @@ One environment gotcha, now handled in the `Makefile`: Arch's system rust at
 `make corpus conformance`
 
 Rather than reimplement flint's Phase-0/Phase-1 sequence (which is genuinely
-coupled to the vegalite template registry), `test/make_corpus.py`
+coupled to the vegalite template registry), `tests/make_corpus.py`
 wraps the five core entry points with recorders and runs the *real* assembler
 over every fixture.
 

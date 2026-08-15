@@ -1,7 +1,7 @@
 // Port of flint/core/type_registry.py.
 //
 // The registry itself is generated from upstream into `type-registry-data.typ`
-// (45 entries of pure data — see test/gen_tables.py for why). The lookups over
+// (45 entries of pure data — see tests/gen_tables.py for why). The lookups over
 // it are hand-ported and live here.
 
 #import "type-registry-data.typ": TYPE_REGISTRY, UNKNOWN_ENTRY

@@ -1,7 +1,7 @@
-// GENERATED from flint/core/semantic_types.py by test/gen_tables.py -- do not edit.
+// GENERATED from flint/core/semantic_types.py by tests/gen_tables.py -- do not edit.
 //
-// Regenerate after any upstream change:  python test/gen_tables.py
-// Check for drift in CI:                 python test/gen_tables.py --check
+// Regenerate after any upstream change:  python tests/gen_tables.py
+// Check for drift in CI:                 python tests/gen_tables.py --check
 //
 // Only pure-data tables are generated. Functions in this module are
 // hand-ported and live alongside this file.

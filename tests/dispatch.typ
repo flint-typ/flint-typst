@@ -1,6 +1,6 @@
 // Differential-test dispatch table.
 //
-// `test/differential.py` sends `[{fn, cases: [[args...]]}]` and reads back the
+// `tests/differential.py` sends `[{fn, cases: [[args...]]}]` and reads back the
 // same shape with results. This maps upstream function names to the ported
 // implementations so the Python side can drive them by name.
 //
@@ -219,7 +219,7 @@
 
 // Non-finite floats have no JSON literal, so both sides agree on a tagged
 // encoding. Keep in sync with `jsonable` in differential.py and with
-// `NONFINITE` in test/make_corpus.py.
+// `NONFINITE` in tests/make_corpus.py.
 #let encode(value) = {
   let t = type(value)
   if t == float {

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Differential test: every ported function against flint-py, call for call.
 
-The conformance corpus (`test/corpus/`) pins the five pipeline entry
+The conformance corpus (`tests/corpus/`) pins the five pipeline entry
 points, which is the right acceptance gate but useless while porting the
 hundred-odd helpers underneath them — a leaf function has no corpus entry, so
 nothing checks it until the stage above lands.
@@ -10,12 +10,12 @@ This closes that gap. `cases.py` names a function and a list of argument
 tuples; this runs each through flint-py and through the Typst port and diffs
 the results. Every function gets checked the moment it is written.
 
-    python test/differential.py                # everything registered
-    python test/differential.py type_registry  # one upstream module
-    python test/differential.py -v             # show every mismatch
+    python tests/differential.py                # everything registered
+    python tests/differential.py type_registry  # one upstream module
+    python tests/differential.py -v             # show every mismatch
 
-Adding a function: implement it, add it to `test/dispatch.typ`, and add its
-cases to `test/cases.py`. All three in the same commit.
+Adding a function: implement it, add it to `tests/dispatch.typ`, and add its
+cases to `tests/cases.py`. All three in the same commit.
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ FLOAT_RTOL = 1e-9
 def diff(path: str, actual, expected, out: list[str], limit: int = 12) -> None:
     """Structural diff. Deliberately strict about bool-vs-int and int-vs-float.
 
-    Shares its rules with `test/conformance.py`: JSON
+    Shares its rules with `tests/conformance.py`: JSON
     `true` and `1` are a real divergence, and layout output feeds pixel
     geometry where 200 and 200.0 must not serialize differently.
     """
@@ -155,7 +155,7 @@ def run_typst(specs) -> list:
         for s in specs
     ]
     (HERE / "_cases.json").write_text(json.dumps(payload))
-    expr = '{import "test/dispatch.typ": run-all; run-all(json("test/_cases.json"))}'
+    expr = '{import "tests/dispatch.typ": run-all; run-all(json("tests/_cases.json"))}'
     r = subprocess.run(
         ["typst", "eval", expr, "--root", str(PKG), "--format", "json"],
         capture_output=True, text=True, cwd=PKG,

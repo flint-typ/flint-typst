@@ -1,8 +1,8 @@
 // Conformance entry point — ours, not upstream.
 //
-// `test/make_corpus.py` recorded, for 705 fixtures, exactly
+// `tests/make_corpus.py` recorded, for 705 fixtures, exactly
 // what each of the five pipeline stages received and returned in flint-py.
-// This replays a recorded case through the port so `test/conformance.py` can
+// This replays a recorded case through the port so `tests/conformance.py` can
 // diff the results.
 //
 // Because the corpus records inputs *and* outputs per stage, a stage can be
@@ -44,7 +44,7 @@
 
 // Non-finite floats have no JSON literal; the corpus, the wasm plugin ABI and
 // this all use the same tagged encoding. Keep in sync with `NONFINITE` in
-// test/make_corpus.py.
+// tests/make_corpus.py.
 #let encode(value) = {
   let t = type(value)
   if t == float {

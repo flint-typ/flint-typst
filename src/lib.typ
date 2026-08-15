@@ -6,7 +6,17 @@
 // hand that to a backend to draw.
 //
 // The port tracks flint-py function-for-function so upstream changes stay
-// mergeable; see ../../docs/PORT-PLAN.md for the rules and
-// ../../PORT-DICTIONARY.md for every place the behaviour diverges.
+// mergeable; see docs/PORT-PLAN.md for the rules and PORT-DICTIONARY.md for
+// every place the behaviour diverges.
+//
+//   #import "@preview/flint-typst:0.2.0": chart
+//   #chart(
+//     chart-type: "Bar Chart",
+//     data: (("Month", "Sales"), ("Jan", 120), ("Feb", 180)),
+//     encodings: (x: "Month", y: "Sales"),
+//     semantic-types: (Sales: "Amount"),
+//   )
 
 #import "core/lib.typ" as core
+#import "assemble.typ": assemble
+#import "lilaq/lib.typ": chart, plan-for

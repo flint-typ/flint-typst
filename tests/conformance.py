@@ -8,9 +8,9 @@ inputs and outputs flint-py actually produced on 705 real chart fixtures.
 Stages the port reports as unimplemented are skipped and counted, never
 silently passed — a partial port cannot read as a clean run.
 
-    python test/conformance.py                       # all stages
-    python test/conformance.py --stage compute_layout
-    python test/conformance.py -v                    # show diffs
+    python tests/conformance.py                       # all stages
+    python tests/conformance.py --stage compute_layout
+    python tests/conformance.py -v                    # show diffs
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 PKG = HERE.parent
-CORPUS = PKG / "test/corpus"
+CORPUS = PKG / "tests/corpus"
 
 sys.path.insert(0, str(HERE))
 from differential import diff  # noqa: E402  -- one differ, shared rules
@@ -38,7 +38,7 @@ def load_case(path: Path) -> dict:
 
 def run_typst(case: dict) -> dict:
     (HERE / "_case.json").write_text(json.dumps(case))
-    expr = '{import "src/core/replay.typ": run-case; run-case(json("test/_case.json"))}'
+    expr = '{import "src/core/replay.typ": run-case; run-case(json("tests/_case.json"))}'
     r = subprocess.run(
         ["typst", "eval", expr, "--root", str(PKG), "--format", "json"],
         capture_output=True, text=True, cwd=PKG,

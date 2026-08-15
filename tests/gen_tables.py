@@ -14,8 +14,8 @@ Only *data* is generated. Every function is hand-ported, because functions are
 where the interesting decisions live and where a reviewer needs to read the two
 side by side.
 
-    python test/gen_tables.py            # write the files
-    python test/gen_tables.py --check    # fail if they are out of date (CI)
+    python tests/gen_tables.py            # write the files
+    python tests/gen_tables.py --check    # fail if they are out of date (CI)
 """
 
 from __future__ import annotations
@@ -74,10 +74,10 @@ def typst_value(v, indent: int = 0) -> str:
 
 def header(upstream: str) -> str:
     return (
-        f"// GENERATED from {upstream} by test/gen_tables.py -- do not edit.\n"
+        f"// GENERATED from {upstream} by tests/gen_tables.py -- do not edit.\n"
         f"//\n"
-        f"// Regenerate after any upstream change:  python test/gen_tables.py\n"
-        f"// Check for drift in CI:                 python test/gen_tables.py --check\n"
+        f"// Regenerate after any upstream change:  python tests/gen_tables.py\n"
+        f"// Check for drift in CI:                 python tests/gen_tables.py --check\n"
         f"//\n"
         f"// Only pure-data tables are generated. Functions in this module are\n"
         f"// hand-ported and live alongside this file.\n\n"
@@ -142,7 +142,7 @@ def main() -> int:
         print(f"  {status:9} {path.relative_to(PKG)}  ({len(content.splitlines())} lines)")
 
     if args.check and stale:
-        print(f"\n{len(stale)} generated file(s) out of date -- run: python test/gen_tables.py", file=sys.stderr)
+        print(f"\n{len(stale)} generated file(s) out of date -- run: python tests/gen_tables.py", file=sys.stderr)
         return 1
     return 0
 
