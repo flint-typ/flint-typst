@@ -157,7 +157,9 @@ future upstream changes harder to apply: a single-pass variance in
 [`bench/BENCH.md`](bench/BENCH.md).
 
 **Publishing.** Both packages are headed for Typst Universe and import as
-`@local` until they get there. `datehog` goes first, since this depends on it.
+`@local` until they get there. `datehog` is close and goes first, since this
+depends on it. This package is not ready: the items above are what "ready"
+means, chart-type coverage most of all.
 
 ## Documentation
 
