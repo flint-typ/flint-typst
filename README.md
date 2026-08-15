@@ -9,7 +9,7 @@ It is a native Typst port of the core of
 [microsoft/flint-chart](https://github.com/microsoft/flint-chart), reproducing
 its behaviour exactly on a 705-fixture corpus.
 
-**Status: 0.2.0 — core complete, lilaq backend started.** Five chart types
+**Status: 0.2.2 — core complete, lilaq backend usable.** Five chart types
 draw; flint defines twenty-three.
 
 | | |
@@ -19,9 +19,10 @@ draw; flint defines twenty-three.
 | pipeline stages green on the 705-case corpus | 5 / 5 (4230 / 4230) |
 | differential cases | 19 874 / 19 889, with 15 registered divergences |
 | chart types drawing | 5 (bar, grouped bar, line, area, scatter) |
+| visual reference tests | 12, mirrored across backends |
 
 ```typst
-#import "@preview/flint-typst:0.2.0": chart
+#import "@preview/flint-typst:0.2.2": chart
 
 #chart(
   chart-type: "Bar Chart",
