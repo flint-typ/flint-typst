@@ -9,8 +9,8 @@ It is a native Typst port of the core of
 [microsoft/flint-chart](https://github.com/microsoft/flint-chart), reproducing
 its behaviour exactly on a 705-fixture corpus.
 
-**Status: 0.2.2 — core complete, lilaq backend usable.** Five chart types
-draw; flint defines twenty-three.
+**Status: 0.2.2 — core complete and verified; one backend, partially covered.**
+Five chart types draw; flint defines twenty-three. See [Roadmap](#roadmap).
 
 | | |
 |---|---|
@@ -22,7 +22,7 @@ draw; flint defines twenty-three.
 | visual reference tests | 12, mirrored across backends |
 
 ```typst
-#import "@preview/flint-typst:0.2.2": chart
+#import "@local/flint-typst:0.2.2": chart
 
 #chart(
   chart-type: "Bar Chart",
@@ -55,27 +55,36 @@ or as little as it wants.
 
 ## Backends
 
-- **[lilaq](https://typst.app/universe/package/lilaq)** — started; bar, grouped
-  bar, line, area and scatter
-- **[primaviz](https://typst.app/universe/package/primaviz)** — broader chart-type
-  coverage, and a good second consumer to prove the core boundary is genuinely
-  backend-agnostic
-- **Vega-Lite via [ctxjs](https://typst.app/universe/package/ctxjs)** — a
-  whole-pipeline alternative for HTML output, consuming core's d3 format strings
-  directly
+One so far: **[lilaq](https://typst.app/universe/package/lilaq)**, drawing bar,
+grouped bar, line, area and scatter charts.
 
-Core deliberately does **not** format numbers: it decides *how many decimals the
-data warrants* and hands over a format spec. A lilaq backend should read that
-structured decision into [`zero`](https://typst.app/universe/package/zero).
+The core/backend split is the point of the design, though, so it is worth saying
+what the boundary is. Core emits plain Typst values and never draws: it decides
+*that* a column is a currency and how many decimals it warrants, and hands over a
+d3 format spec, leaving the actual number formatting to the backend — the lilaq
+one reads that decision into [`zero`](https://typst.app/universe/package/zero).
+
+Filling the gaps the other way round is also part of a backend's job. Core was
+written against Vega-Lite, which supplies a good deal of chart convention on its
+own; lilaq is a plotting library rather than a grammar of graphics, so it has no
+time scale, no automatic legend placement and no Vega-Lite default label angles.
+Those decisions are made in `src/lilaq/`, and each one is written down in
+[`PORT-DICTIONARY.md`](PORT-DICTIONARY.md) so it is clear what came from core and
+what did not. Choices that are matters of taste rather than of correctness are
+exposed as a `theme` argument instead of being settled there.
 
 ## Dependencies
 
-[`datehog`](../datehog) — date parsing and epoch arithmetic, written for this
-port but standalone. During development it is linked into Typst's local
-namespace:
+`datehog` — date parsing and epoch arithmetic, written for this port but
+standalone. It is headed for Typst Universe, after which it will import as
+`@preview/datehog`.
+
+Until then the import is `@local/datehog`, and it has to be installed by hand
+from its [interim repository](https://github.com/zral0kh/datehog):
 
 ```sh
-ln -s "$PWD/../datehog" ~/.local/share/typst/packages/local/datehog/0.1.0
+git clone https://github.com/zral0kh/datehog.git \
+  ~/.local/share/typst/packages/local/datehog/0.1.0
 ```
 
 ## Testing
@@ -115,6 +124,40 @@ Running the tests needs the upstream Python package for comparison:
 git clone --depth 1 https://github.com/microsoft/flint-chart.git flint-source
 make corpus                  # regenerate the oracle (TZ=UTC is load-bearing)
 ```
+
+## Roadmap
+
+The core is done and verified. Everything below it is not.
+
+**Chart types.** Five of flint's twenty-three draw. The remaining eighteen are
+backend work, not core work — core already resolves them.
+
+**Faceting.** Core computes a full facet grid (rows, columns, per-facet subplot
+sizes) and the lilaq backend ignores all of it, drawing a single subplot. Charts
+with `row`/`column` encodings therefore render, but not as small multiples.
+
+**Log scales and automatic scale selection.** Core does neither. It emits a
+`scaleType`, but only ever a linear or a discrete one, and nothing infers a log
+scale from the data. The backend already maps whatever core says onto a lilaq
+scale, so a core-side decision would carry through without backend changes.
+
+**More backends.** Neither of these is started:
+
+- **[primaviz](https://typst.app/universe/package/primaviz)** — broader
+  chart-type coverage, and a good second consumer to prove the core boundary is
+  genuinely backend-agnostic rather than lilaq-shaped
+- **Vega-Lite via [ctxjs](https://typst.app/universe/package/ctxjs)** — a
+  whole-pipeline alternative for HTML output, consuming core's d3 format strings
+  directly
+
+**Performance.** Two optimisations are identified and deliberately deferred,
+because they would move the port away from flint-py's structure and so make
+future upstream changes harder to apply: a single-pass variance in
+`compute_banking_ar`, and a column-oriented restructuring of the row loops. See
+[`bench/BENCH.md`](bench/BENCH.md).
+
+**Publishing.** Both packages are headed for Typst Universe and import as
+`@local` until they get there. `datehog` goes first, since this depends on it.
 
 ## Documentation
 
