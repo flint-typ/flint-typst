@@ -5,7 +5,7 @@ declaration, and it works out what each channel *means* — semantic types,
 scales, number formats, sort order — and how much room each part of the chart
 needs. A backend then draws it.
 
-It is a native Typst port of the core of
+It is a native Typst port of the python core of
 [microsoft/flint-chart](https://github.com/microsoft/flint-chart), reproducing
 its behaviour exactly on a 705-fixture corpus.
 
