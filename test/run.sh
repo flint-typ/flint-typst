@@ -5,11 +5,11 @@
 #   ./test/run.sh differential  just the per-function differential
 #
 # PY can point at a venv with flint-py's dependencies installed:
-#   PY=transpile/.venv/bin/python ./test/run.sh
+#   make test
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-PY=${PY:-transpile/.venv/bin/python}
+PY=${PY:-.venv/bin/python}
 [[ -x $PY ]] || PY=python3
 only=${1:-all}
 fail=0
@@ -28,10 +28,10 @@ fi
 
 if [[ $only == all || $only == conformance ]]; then
   echo "== conformance vs the 705-case corpus (pipeline stages) =="
-  if [[ -d transpile/corpus/core ]]; then
+  if [[ -d test/corpus ]]; then
     $PY test/conformance.py || fail=1
   else
-    echo "   corpus missing -- run: make -C transpile corpus"
+    echo "   corpus missing -- run: make corpus"
     fail=1
   fi
   echo

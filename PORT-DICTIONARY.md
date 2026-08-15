@@ -99,6 +99,6 @@ date but no time — so the port reads them as UTC, via datehog.
 
 This affects 15 of the 705 corpus fixtures (`dates_hours__*`,
 `dates_year_month__*_mon_yyyy_*`), which recorded machine-dependent values. The
-corpus is now generated with `TZ=UTC` (`transpile/Makefile`) so it is
+corpus is now generated with `TZ=UTC` (`the `corpus` make target`) so it is
 reproducible and matches the port. Documents that know their data's zone can
 pass `--input tz=...` and read it with datehog's `local-offset`.

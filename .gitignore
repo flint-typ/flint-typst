@@ -1,26 +1,14 @@
-# Upstream clone — reference implementation and fixture source, not ours.
-# Recreate with:
-#   git clone --depth 1 https://github.com/microsoft/flint-chart.git flint-source
+# Upstream clone — the reference implementation the tests compare against and
+# the source of the fixture corpus. Not vendored; recreate with `make upstream`.
 flint-source/
 
-# Python venv and vendored transpilers used only for investigation
-transpile/.venv/
-transpile/tools-bin/
-transpile/depyler-src/
-transpile/py2many-src/
-
-# Build output
-transpile/rust/target/
-transpile/probe/depyler-out/
-transpile/probe/generated-build.log
-transpile/validate/flint_core_wasm.wasm
-transpile/validate/wasm-features.json
-transpile/typed/flint_core_flat.py
-transpile/audit/report-core.json
+# Python venv for the test harness (`make setup`)
+.venv/
 
 # Test and bench scratch
 test/_case.json
 test/_cases.json
+test/typst-probes/_*.typ
 bench/_*.typ
 *.pdf
 __pycache__/

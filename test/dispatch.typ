@@ -219,7 +219,7 @@
 
 // Non-finite floats have no JSON literal, so both sides agree on a tagged
 // encoding. Keep in sync with `jsonable` in differential.py and with
-// `NONFINITE` in transpile/validate/make_core_corpus.py.
+// `NONFINITE` in test/make_corpus.py.
 #let encode(value) = {
   let t = type(value)
   if t == float {

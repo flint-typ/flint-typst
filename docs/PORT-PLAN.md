@@ -14,8 +14,8 @@ Three constraints, in priority order:
 3. **Traceable history.** One commit per upstream unit, so `git log` maps onto
    `flint/core/*.py` and re-porting later is a diff, not an archaeology project.
 
-Background measurements: `probe/typst/BENCH.md`, `PORTING-NOTES.md`,
-`TYPST-VS-WASM.md`.
+Background measurements: `bench/BENCH.md`, `PORTING-NOTES.md`,
+`WHY-TYPST-NOT-WASM.md`.
 
 ---
 
@@ -300,7 +300,7 @@ Three, in intended order:
 `ctxjs` runs JavaScript **inside a `context` block**, and that is a one-way
 door: a context block yields *content*, and values computed inside it cannot
 escape to the top level. It is the same constraint that rules out `state()` as
-a mutable cell (see TYPST-VS-WASM.md §3).
+a mutable cell (see WHY-TYPST-NOT-WASM.md §3).
 
 So a JS pipeline can *render* a chart — it draws inside its own context — but it
 cannot hand computed layout back out to drive a top-level `lq.diagram(..)` call.
@@ -315,7 +315,7 @@ no layout from us at all.
 - Consequence for layout: a JS backend does its own layout, so `compute_layout`
   output is lilaq/primaviz-facing and a Vega-Lite backend would ignore most of
   it. Worth remembering before optimising layout for a single consumer.
-- **Version drift to watch:** measurements in `probe/typst/BENCH.md` were taken
+- **Version drift to watch:** measurements in `bench/BENCH.md` were taken
   against lilaq 0.5.0 and zero 0.5.0; both have since moved (0.6.0 / 0.7.0).
   Re-run the benchmarks before trusting the numbers for a backend decision.
 

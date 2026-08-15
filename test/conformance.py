@@ -25,7 +25,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 PKG = HERE.parent
-CORPUS = PKG / "transpile/corpus/core"
+CORPUS = PKG / "test/corpus"
 
 sys.path.insert(0, str(HERE))
 from differential import diff  # noqa: E402  -- one differ, shared rules
@@ -58,7 +58,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not args.corpus.exists():
-        print(f"corpus not found at {args.corpus}\nrun: make -C transpile corpus", file=sys.stderr)
+        print(f"corpus not found at {args.corpus}\nrun: make corpus", file=sys.stderr)
         return 2
 
     cases = sorted(p for p in args.corpus.iterdir() if p.suffix in (".gz", ".json") and p.name != "_manifest.json")

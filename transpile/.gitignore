@@ -1,9 +1,0 @@
-.venv/
-tools-bin/
-depyler-src/
-py2many-src/
-rust/target/
-probe/depyler-out/
-validate/flint_core_wasm.wasm
-validate/smoke.pdf
-__pycache__/

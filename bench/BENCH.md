@@ -1,4 +1,4 @@
-# Benchmarks behind TYPST-VS-WASM.md
+# Benchmarks behind ../docs/WHY-TYPST-NOT-WASM.md
 
 > **Measured against the finished port, 2026-08-15.** Everything below the
 > "Measured" section is the *pre-port estimate* that informed the decision,
@@ -7,10 +7,10 @@
 
 ## Measured — the real port vs lilaq 0.6.0
 
-`bench/core-bench.typ` runs the full Phase-0/Phase-1 pipeline
+`core-bench.typ` runs the full Phase-0/Phase-1 pipeline
 (`convert_temporal_data` → `resolve_channel_semantics` →
 `compute_channel_budgets` → `filter_overflow` → `compute_layout`) on N distinct
-charts; `bench/lilaq-bench.typ` renders the same shapes. Data varies per chart
+charts; `lilaq-bench.typ` renders the same shapes. Data varies per chart
 so memoisation cannot collapse them. Baseline (empty document, ~180 ms)
 subtracted.
 
@@ -25,7 +25,7 @@ subtracted.
 **The Typst-native decision holds.** At the median chart size core is 14 % of
 the cost — moving it to wasm would save about 3.5 ms out of 28. Core only
 overtakes lilaq on wide data (many series), the ~1 % tail of the fixture corpus,
-which is exactly where `TYPST-VS-WASM.md` said the crossover would be.
+which is exactly where `../docs/WHY-TYPST-NOT-WASM.md` said the crossover would be.
 
 Note lilaq 0.6.0 is faster than the 0.5.0 these estimates were built against
 (24 ms vs 29 ms at 32 points; 205 vs 243 at 3 000), so core's share is slightly

@@ -156,7 +156,7 @@ is measured on a real Typst core because none exists yet:
 | avoiding `+` accumulation | not a saving — a landmine |
 
 A carefully written port plausibly lands **1.5–2.5× faster** than a naive
-line-by-line one. Against the numbers in `probe/typst/BENCH.md`, that moves the
+line-by-line one. Against the numbers in `bench/BENCH.md`, that moves the
 worst case (6 000 points, 60 series) from ~790 ms to roughly 320–530 ms —
 comparable to lilaq's own 381 ms rather than double it, which would remove the
 only shape where core dominates.

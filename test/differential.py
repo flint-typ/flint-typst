@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Differential test: every ported function against flint-py, call for call.
 
-The conformance corpus (`transpile/corpus/core/`) pins the five pipeline entry
+The conformance corpus (`test/corpus/`) pins the five pipeline entry
 points, which is the right acceptance gate but useless while porting the
 hundred-odd helpers underneath them — a leaf function has no corpus entry, so
 nothing checks it until the stage above lands.
@@ -33,7 +33,7 @@ from pathlib import Path
 # strings in the *host* zone, so on a machine in Europe/Berlin every temporal
 # case would differ from the port by an hour — a phantom mismatch that looks
 # like a porting bug. The conformance corpus is generated under TZ=UTC for the
-# same reason (see transpile/Makefile), and the port is UTC-only by design.
+# same reason (see the `corpus` make target), and the port is UTC-only by design.
 os.environ["TZ"] = "UTC"
 if hasattr(time, "tzset"):
     time.tzset()
@@ -52,7 +52,7 @@ FLOAT_RTOL = 1e-9
 def diff(path: str, actual, expected, out: list[str], limit: int = 12) -> None:
     """Structural diff. Deliberately strict about bool-vs-int and int-vs-float.
 
-    Shares its rules with `transpile/validate/check_conformance.py`: JSON
+    Shares its rules with `test/conformance.py`: JSON
     `true` and `1` are a real divergence, and layout output feeds pixel
     geometry where 200 and 200.0 must not serialize differently.
     """

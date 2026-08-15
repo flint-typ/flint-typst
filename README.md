@@ -63,7 +63,7 @@ ln -s "$PWD/../datehog" ~/.local/share/typst/packages/local/datehog/0.1.0
 ## Testing
 
 ```sh
-PY=transpile/.venv/bin/python ./test/run.sh
+make test
 ```
 
 Two harnesses, both value-based — `typst eval` in, JSON out, no images:
@@ -83,22 +83,22 @@ Running the tests needs the upstream Python package for comparison:
 
 ```sh
 git clone --depth 1 https://github.com/microsoft/flint-chart.git flint-source
-make -C transpile corpus     # regenerate the oracle (TZ=UTC is load-bearing)
+make corpus                  # regenerate the oracle (TZ=UTC is load-bearing)
 ```
 
 ## Documentation
 
 - [`PORT-DICTIONARY.md`](PORT-DICTIONARY.md) — every semantic divergence from
   flint-py, with reasons. Read this before applying an upstream change.
-- [`transpile/PORT-PLAN.md`](transpile/PORT-PLAN.md) — layout, naming rules,
+- [`docs/PORT-PLAN.md`](docs/PORT-PLAN.md) — layout, naming rules,
   the Python→Typst idiom table, backend notes
-- [`transpile/TYPST-VS-WASM.md`](transpile/TYPST-VS-WASM.md) — why native Typst
+- [`docs/WHY-TYPST-NOT-WASM.md`](docs/WHY-TYPST-NOT-WASM.md) — why native Typst
   rather than a wasm plugin, with the capability probes
-- [`transpile/REPORT.md`](transpile/REPORT.md) — why source-to-source
+- [`docs/WHY-NOT-TRANSPILED.md`](docs/WHY-NOT-TRANSPILED.md) — why source-to-source
   transpilation was abandoned, with measurements
-- [`transpile/PORTING-NOTES.md`](transpile/PORTING-NOTES.md) — where core's time
+- [`docs/PORTING-NOTES.md`](docs/PORTING-NOTES.md) — where core's time
   goes, which Typst idioms are traps
-- [`transpile/probe/typst/BENCH.md`](transpile/probe/typst/BENCH.md) — timings
+- [`bench/BENCH.md`](bench/BENCH.md) — timings
 
 ## Licence
 

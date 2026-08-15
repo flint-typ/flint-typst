@@ -6,7 +6,7 @@
 # missing feature, so a *success* there means Typst gained the capability and
 # TYPST-VS-WASM.md needs revisiting.
 #
-# Re-run after any Typst upgrade:  ./run.sh
+# Re-run after any Typst upgrade:  make probes
 set -uo pipefail
 cd "$(dirname "$0")"
 

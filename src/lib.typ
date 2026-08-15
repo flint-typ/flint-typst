@@ -6,7 +6,7 @@
 // hand that to a backend to draw.
 //
 // The port tracks flint-py function-for-function so upstream changes stay
-// mergeable; see ../transpile/PORT-PLAN.md for the rules and
-// ../transpile/PORT-DICTIONARY.md for every place the behaviour diverges.
+// mergeable; see ../../docs/PORT-PLAN.md for the rules and
+// ../../PORT-DICTIONARY.md for every place the behaviour diverges.
 
 #import "core/lib.typ" as core

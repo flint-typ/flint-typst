@@ -2,7 +2,7 @@
 
 Measured against Typst **0.15.1** on this machine. Re-runnable:
 `make typst-probes` (capability probes) and the `bench-*.typ` files in
-`probe/typst/`. Probes named `*-GAP.typ` are *expected to fail* — if one starts
+`test/typst-probes/`. Probes named `*-GAP.typ` are *expected to fail* — if one starts
 passing, Typst gained a capability and this document is stale.
 
 **Conclusion: pure Typst is the better default.** An earlier draft of this
@@ -133,7 +133,7 @@ Worth remembering for the backend layer.
 
 ## Performance — both linear in points; core scales with *series*, lilaq does not
 
-Full numbers and method in `probe/typst/BENCH.md`.
+Full numbers and method in `bench/BENCH.md`.
 
 Matched by shape (core-in-Typst estimated as CPython × 7):
 
