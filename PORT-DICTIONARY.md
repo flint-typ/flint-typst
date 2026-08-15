@@ -90,6 +90,20 @@ while still counting and printing them on every run.
 | `filter_overflow._default_overflow_strategy` | mixed NaN/number sort keys | Python's Timsort produces an implementation-defined arrangement when the key order is not total (`sorted(['x', 3, 1], key=float-or-nan)` gives `[1, 'x', 3]`). Reproducing it means reimplementing Timsort. The all-NaN case — the one that occurs in the corpus, and the only one reachable from a real column — is matched exactly. No corpus fixture exercises the mixed case; if one appears, the gate will say so. |
 | `js_date.js_date_parse_ms` and friends | `"1.5"`, `".5"`, `"-2"` | dateutil's tokenizer reads a leading digit run out of these and returns a day of January 1970 (`".5"` → 1970-01-05). Pinning its exact tokenizer would cost more than it protects: none of these is a date by any reasonable reading, and the plausible shapes are reproduced. Note the asymmetry that makes a simple rule impossible — dateutil accepts `"-2"` but rejects `"+3"`. |
 
+## Backend gap-filling
+
+Core was written against Vega-Lite, which supplies a good deal of chart
+convention on its own. lilaq is a plotting library, not a grammar of graphics,
+so a few decisions core never had to make have no home except the backend. These
+are not divergences from flint-py — core's output is unchanged — but they are
+places the backend is deciding something rather than transcribing it, so they
+are recorded.
+
+| where | what core does | what the backend must add |
+|---|---|---|
+| `lilaq/time-ticks.typ` | decides the tick *format* (`temporalFormat`) but never tick *positions* — VL's time scale places calendar-aware ticks itself | lilaq has no date scale; a temporal channel arrives as epoch milliseconds and its linear locator returns round *numbers*, landing on arbitrary instants ("Jan 01 2020, Aug 07 2020, Mar 14 2021"). The backend picks a calendar unit (year/quarter/month/week/day/hour/minute/second), snaps to its boundaries, and labels at the granularity of the unit via core's own `level_to_format`. |
+| `lilaq/render.typ` `angled-label` | omits `labelAngle` in one branch, its comment noting this "leaves VL defaults (e.g. -45 on ordinal)" | lilaq has no such default, so the backend supplies -45deg when a label outgrows its band — and anchors it by its end. lilaq places a bottom-axis label `top + center` on the tick (`model/axis.typ`), which centres the *rotated* bounding box and leaves the text beside its own bar. `rotate(origin: ...)` cannot fix that alone; the label goes in a zero-width box so the centring has nothing to centre. |
+
 ## Timezone policy
 
 `PORT-DATE`. flint-py reads zoneless date-time strings in the host's local zone

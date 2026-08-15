@@ -1,11 +1,11 @@
-// Shared preamble for the visual tests.
+// Shared harness for the visual tests.
 //
-// These are the counterpart to the value-based suites in `test/`: those check
-// that core's *decisions* match flint-py, these check that the lilaq backend
-// turns those decisions into the right picture. Each test targets a specific
-// decision rather than "a chart appeared", so a diff points at a cause.
+// These are the counterpart to the value suites in `tests/*.py`: those check
+// that core's *decisions* match flint-py, these check that a backend turns
+// those decisions into the right picture. The cases live in `cases.typ` and are
+// mirrored by every backend, so adding one covers all of them.
 
-#import "/src/lib.typ": chart, plan-for
+#import "cases.typ": CASES
 
 #let setup(body) = {
   set page(width: auto, height: auto, margin: 4pt, fill: white)
@@ -13,13 +13,31 @@
   body
 }
 
-/// Categorical sales, deliberately *not* in calendar order — core should
-/// restore Jan/Feb/Mar from the Month semantic type.
-#let months = (("Month", "Revenue", "Region"),
-  ("Mar", 14200.0, "North"), ("Jan", 12000.0, "North"), ("Feb", 15500.0, "North"),
-  ("Mar", 13200.0, "South"), ("Jan", 9000.0, "South"),  ("Feb", 11500.0, "South"))
-
-/// A short daily time series.
-#let daily = (("Date", "Value"),
-  ("2020-01-01", 12.0), ("2020-02-01", 15.5), ("2020-03-01", 14.2),
-  ("2020-04-01", 19.8), ("2020-05-01", 21.3), ("2020-06-01", 20.1))
+/// Render one case with the named backend.
+///
+/// Backends are imported lazily inside the branch so a test only pulls in the
+/// one it needs — importing every backend would make each test depend on all
+/// of their plotting libraries.
+#let render-case(backend, group, name) = {
+  let case = CASES.at(group).at(name)
+  let enc = case.encodings
+  // The same fixture is a colour series on a line chart and a `group` on a
+  // grouped bar chart.
+  let channel = case.at("series-channel", default: none)
+  if channel != none and "color" in enc {
+    enc = (..enc, (channel): enc.color)
+    let _ = enc.remove("color")
+  }
+  let args = (
+    chart-type: case.chart-type,
+    data: case.data,
+    encodings: enc,
+    semantic-types: case.at("semantic-types", default: (:)),
+  )
+  if backend == "lilaq" {
+    import "/src/lilaq/lib.typ": chart
+    chart(..args)
+  } else {
+    panic("no such backend: " + backend)
+  }
+}

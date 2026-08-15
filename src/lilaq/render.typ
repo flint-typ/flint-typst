@@ -8,8 +8,10 @@
 #import "@preview/lilaq:0.6.0" as lq
 #import "format.typ": tick-formatter
 #import "../core/py.typ": falsy, is-finite, is-nan, is_number, num-str, py_str, truthy
-#import "../core/compute-layout.typ": _js_to_date_number, _js_to_number
+#import "../core/compute-layout.typ": APPROX_CHAR_WIDTH_RATIO, _js_to_date_number, _js_to_number
 #import "@local/datehog:0.1.0" as dh
+#import "time-ticks.typ": calendar-ticks
+#import "../core/resolve-semantics.typ": level_to_format
 
 /// Pull one column out of the table.
 #let column-of(data, field) = data.map(row => row.at(field, default: none))
@@ -147,16 +149,63 @@
 /// - **quantitative** — core's number-format decision, via `zero`.
 ///
 /// Anything core had no opinion about is left to lilaq.
-#let axis-args(cs, data, px-length: 300) = {
+// An x-axis tick label rotated to `angle` degrees and anchored by its *end*
+// rather than its middle.
+//
+// lilaq places a bottom-axis label with `place(top + center, label)`
+// (model/axis.typ), so it centres whatever box it is handed on the tick. A
+// rotated label's bounding box is much wider than the label is tall, and
+// centring that box leaves the text visibly beside its own bar — at 20
+// categories the last label lands well past the last bar.
+//
+// `rotate(origin: ...)` alone cannot fix it: the origin controls where the ink
+// goes inside the box, and lilaq then centres that box anyway. So the box is
+// made zero-width, which leaves lilaq's centring with nothing to centre and
+// pins x = the tick, and the label is `place`d against that point with
+// `reflow: false` so it hangs off it. The height is measured and kept honest,
+// or the axis would reserve no room and the labels would run into the axis
+// title.
+//
+// The ink extends left and down from the anchor: rotating by -45deg about the
+// top-right corner sends the text's left end that way, so the label ascends
+// left-to-right and finishes at its own tick.
+#let angled-label(body, angle) = context {
+  let turned = rotate(angle * 1deg, origin: top + right, reflow: false, box(body))
+  box(
+    width: 0pt,
+    height: measure(rotate(angle * 1deg, origin: top + right, reflow: true, box(body))).height,
+    place(top + right, turned),
+  )
+}
+
+#let axis-args(
+  cs, data, px-length: 300, font-size: 10, band-px: 40, label-angle: none, horizontal: true,
+) = {
   if falsy(cs) { return (:) }
   let args = (:)
 
   if is-discrete(cs) {
     let labels = category-values(data, cs)
     args.insert("ticks", range(labels.len()))
+
+    // Angle the labels when they will not fit the band horizontally.
+    //
+    // Core decides this where it can (`compute_label_sizing` sets `labelAngle`
+    // at narrow steps) but deliberately leaves it unset in one case, noting in
+    // its own source that "omitting labelAngle leaves VL defaults (e.g. -45 on
+    // ordinal)". lilaq has no such default, so the backend supplies the same
+    // one — otherwise twenty category labels overprint each other.
+    let angle = label-angle
+    if angle == none and horizontal {
+      let widest = if labels.len() == 0 { 0 } else { calc.max(..labels.map(l => l.len())) }
+      let label-px = widest * font-size * APPROX_CHAR_WIDTH_RATIO
+      if label-px > band-px { angle = -45 }
+    }
+
     args.insert("format-ticks", (ticks, ..a) => ticks.map(i => {
       let idx = int(i)
-      if idx >= 0 and idx < labels.len() { [#labels.at(idx)] } else { [] }
+      let body = if idx >= 0 and idx < labels.len() { [#labels.at(idx)] } else { [] }
+      if angle == none or angle == 0 { body } else { angled-label(body, angle) }
     }))
     // There is nothing between January and February to subdivide. A discrete
     // axis has no positions other than the bands themselves, so subticks would
@@ -166,17 +215,58 @@
   }
 
   if cs.at("type", default: none) == "temporal" {
+    let coords = numeric-column(data, cs).filter(v => v != none).dedup().sorted()
+    if coords.len() == 0 { return args }
+
+    // How many labels fit depends on how wide one is, not just how long the
+    // axis is. Core's `temporalFormat` cannot be used for the estimate here:
+    // it describes the *data's* granularity, while the label will be written at
+    // the granularity of whichever tick unit gets chosen below — and that
+    // choice depends on the estimate. A nominal eight characters covers the
+    // forms this produces ("Jan 2020", "Jan 01", "12:00") and breaks the
+    // circularity.
+    let nominal-label-px = 8 * font-size * APPROX_CHAR_WIDTH_RATIO
+    let target = calc.max(2, int(px-length / calc.max(1, nominal-label-px * 1.4)))
+
+    // Ticks land on calendar boundaries — a year, a quarter, a month, a
+    // Monday, a midnight — rather than on arbitrary instants. lilaq has no date
+    // scale, so its linear locator would produce round *numbers* here; core
+    // never emits tick positions because Vega-Lite's time scale did this.
+    let cal = calendar-ticks(coords.first(), coords.last(), target: target)
+    if cal != none {
+      args.insert("ticks", cal.ticks)
+      // Label at the granularity of the *tick unit*, not of the data. Core's
+      // own level -> format table does that mapping, so quarterly ticks read
+      // "Jan 2020" rather than "Jan 01, 2020".
+      let same-year = {
+        let a = dh.from-ms(cal.ticks.first())
+        let b = dh.from-ms(cal.ticks.last())
+        a != none and b != none and a.year == b.year
+      }
+      let same-day = {
+        let a = dh.from-ms(cal.ticks.first())
+        let b = dh.from-ms(cal.ticks.last())
+        a != none and b != none and a.year == b.year and a.ordinal == b.ordinal
+      }
+      let tick-pattern = level_to_format(cal.level, (sameYear: same-year, sameDay: same-day))
+      if tick-pattern != none {
+        args.insert("format-ticks", (ticks, ..a) => ticks.map(ms => {
+          let m = dh.from-ms(ms)
+          if m == none { [#ms] } else { [#_strftime(m, tick-pattern)] }
+        }))
+      }
+      // Nothing meaningful sits between two calendar boundaries at the chosen
+      // granularity.
+      args.insert("subticks", none)
+      return args
+    }
+
+    // No calendar unit fitted (a degenerate range): fall back to the data
+    // points themselves, labelled with core's format.
     let fmt = temporal-formatter(cs)
     if fmt != none { args.insert("format-ticks", fmt) }
-    // Same reasoning as a discrete axis when the ticks *are* the data points:
-    // subdividing between two months implies a resolution the column lacks.
+    args.insert("ticks", coords)
     args.insert("subticks", none)
-    // Core chose the format for the granularity the *data* has — `%b` when
-    // every point is a distinct month. Left to pick its own ticks lilaq
-    // subdivides the range linearly and the labels repeat ("Jan Jan Feb Feb").
-    // Where the points are few enough to be their own ticks, use them.
-    let coords = numeric-column(data, cs).filter(v => v != none).dedup().sorted()
-    if coords.len() > 0 and coords.len() <= 12 { args.insert("ticks", coords) }
     return args
   }
 
@@ -231,7 +321,7 @@
 ///
 /// Returns `auto` when core expressed no opinion, which is lilaq's own default
 /// and better than a guess.
-#let limits-for(cs, values, data) = {
+#let limits-for(cs, values, data, banded: false) = {
   if falsy(cs) { return auto }
   if is-discrete(cs) {
     // The band count is the number of *categories*, not the number of rows —
@@ -240,7 +330,13 @@
     // axis past the data and leaves empty bands on the right.
     let n = category-values(data, cs).len()
     if n == 0 { return auto }
-    return (-0.6, n - 0.4)
+    // Half a band of padding at each end, but only when the axis is *banded*:
+    // a bar occupies its whole band and would otherwise be clipped by the
+    // frame. A line or scatter draws *at* the category position, so the same
+    // padding is just empty margin before the first point and after the last.
+    // Core already decided which axes are banded (`declareLayoutMode`).
+    if banded { return (-0.6, n - 0.4) }
+    return (0, n - 1)
   }
   let dc = cs.at("domainConstraint", default: none)
   if truthy(dc) {
@@ -296,6 +392,14 @@
 #let diagram-for(plan, marks) = {
   let cs = plan.channelSemantics
   let layout = plan.layout
+  let axis-flags = {
+    let f = plan.declaration.at("axisFlags", default: none)
+    if truthy(f) { f } else { (:) }
+  }
+  let is-banded(ch) = {
+    let f = axis-flags.at(ch, default: none)
+    truthy(f) and f.at("banded", default: false) == true
+  }
   let x-cs = cs.at("x", default: none)
   let y-cs = cs.at("y", default: none)
 
@@ -310,13 +414,31 @@
     ylabel: axis-label(y-cs),
     xscale: scale-for(x-cs),
     yscale: scale-for(y-cs),
-    xlim: limits-for(x-cs, x-values, plan.data),
-    ylim: limits-for(y-cs, y-values, plan.data),
+    xlim: limits-for(x-cs, x-values, plan.data, banded: is-banded("x")),
+    ylim: limits-for(y-cs, y-values, plan.data, banded: is-banded("y")),
     // `xaxis`/`yaxis` take an argument *dictionary*, which lilaq spreads into
     // its own `axis()` — passing a constructed `lq.axis` re-spreads the
     // element's own fields and it rejects them.
-    xaxis: axis-args(x-cs, plan.data, px-length: layout.subplotWidth),
-    yaxis: axis-args(y-cs, plan.data, px-length: layout.subplotHeight),
+    // Core sized the labels too (`compute_label_sizing`), and the backend needs
+    // the same number to estimate how many will fit.
+    xaxis: axis-args(
+      x-cs, plan.data,
+      px-length: layout.subplotWidth,
+      font-size: layout.xLabel.at("fontSize", default: 10),
+      band-px: layout.at("xStep", default: 40),
+      label-angle: layout.xLabel.at("labelAngle", default: none),
+    ),
+    yaxis: axis-args(
+      y-cs, plan.data,
+      px-length: layout.subplotHeight,
+      font-size: layout.yLabel.at("fontSize", default: 10),
+      band-px: layout.at("yStep", default: 40),
+      label-angle: layout.yLabel.at("labelAngle", default: none),
+      // A y-axis label sits in the left margin and reads horizontally whatever
+      // the band height; core's `_discrete_y_axis_should_use_horizontal_labels`
+      // says the same.
+      horizontal: false,
+    ),
     // lilaq draws a legend for any labelled plot; `(:)` is its default and
     // means "show one if there is anything to show". Only suppress it when
     // there is a single unlabelled series.

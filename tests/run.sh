@@ -17,6 +17,8 @@ fail=0
 if [[ $only == all || $only == generated ]]; then
   echo "== generated tables up to date =="
   $PY tests/gen_tables.py --check || fail=1
+  $PY tests/gen_fixtures.py --check || fail=1
+  $PY tests/gen_visual.py lilaq --check || fail=1
   echo
 fi
 

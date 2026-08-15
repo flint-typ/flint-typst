@@ -24,7 +24,7 @@ FLINT_PY := $(UPSTREAM)/packages/flint-py
 FIXTURES := $(UPSTREAM)/shared/test-data
 DATEHOG  := $(HOME)/.local/share/typst/packages/local/datehog
 
-.PHONY: all test differential conformance generated backend gallery visual visual-update visual-new probes bench corpus tables setup link upstream clean
+.PHONY: fixtures all test differential conformance generated backend gallery visual visual-update visual-mirror visual-cases probes bench corpus tables setup link upstream clean
 
 all: test
 
@@ -55,11 +55,16 @@ visual:
 
 visual-update:
 	tt update
-	@echo "references updated — inspect them before committing"
+	@echo "references updated — LOOK AT THEM before committing"
 
-visual-new:
-	@test -n "$(NAME)" || { echo "usage: make visual-new NAME=backend/my-test"; exit 1; }
-	tt new --type persistent "$(NAME)"
+# The cases live once in tests/cases.typ and every backend renders all of them,
+# so adding a case covers every backend and adding a backend is one command.
+visual-mirror:
+	@test -n "$(BACKEND)" || { echo "usage: make visual-mirror BACKEND=lilaq"; exit 1; }
+	$(PY) tests/gen_visual.py "$(BACKEND)"
+
+visual-cases:
+	@$(PY) tests/gen_visual.py --list
 
 # Renders every chart type to a PDF you can actually look at.
 gallery:
@@ -98,6 +103,11 @@ corpus: | $(FLINT_PY)
 
 tables: | $(FLINT_PY)
 	$(PY) tests/gen_tables.py
+
+# Lifts a few real inputs out of flint's fixture corpus into tests/fixtures.typ,
+# so the scale cases draw data the conformance suite already vouches for.
+fixtures: | $(FLINT_PY)
+	$(PY) tests/gen_fixtures.py
 
 # ------------------------------------------------------------------ setup ---
 setup: $(VENV)/bin/python link
