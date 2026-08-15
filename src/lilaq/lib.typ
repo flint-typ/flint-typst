@@ -2,7 +2,7 @@
 
 #import "../assemble.typ": assemble
 #import "templates/lib.typ": get_template_def, supported-charts
-#import "render.typ": diagram-for
+#import "render.typ": DEFAULT-THEME, diagram-for
 #import "../core/py.typ": falsy, truthy
 
 /// Compile a chart declaration into a lilaq diagram.
@@ -18,6 +18,9 @@
 ///
 /// `data` is either an array of row dictionaries or a table with a header row.
 /// Everything else mirrors the field names flint uses.
+///
+/// `theme` overrides the presentation choices core does not make — see
+/// `DEFAULT-THEME` in `render.typ` for the list and the defaults.
 #let chart(
   chart-type: none,
   data: (),
@@ -27,6 +30,7 @@
   canvas-size: none,
   properties: none,
   options: (:),
+  theme: (:),
 ) = {
   let template = get_template_def(chart-type)
   assert(
@@ -63,7 +67,15 @@
     template,
   )
 
-  diagram-for(plan, (template.instantiate)(plan))
+  // The template's `markCognitiveChannel` is core's own statement of whether
+  // this mark reads by length or by position, which decides which axis limits
+  // are required and where the legend may sit.
+  diagram-for(
+    plan,
+    (template.instantiate)(plan),
+    mark-reads: template.at("markCognitiveChannel", default: "position"),
+    theme: theme,
+  )
 }
 
 /// The chart plan without rendering it — the semantics and layout core

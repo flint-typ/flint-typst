@@ -97,25 +97,70 @@
   dh.add-ms(moment, _MS-PER.at(unit.kind) * unit.n)
 }
 
-/// Roughly how many ticks `unit` yields over `span` milliseconds.
-#let _count-for(span, unit) = {
-  let approx = if unit.kind == "year" {
-    365.2425 * 86400000 * unit.n
-  } else if unit.kind == "month" {
-    30.436875 * 86400000 * unit.n
-  } else {
-    _MS-PER.at(unit.kind) * unit.n
-  }
-  span / approx
+/// Roughly how long one `unit` is, in milliseconds.
+///
+/// Approximate for years and months, which have no fixed length — good enough
+/// to choose a unit, never used to place a tick.
+#let _approx-ms(unit) = if unit.kind == "year" {
+  365.2425 * 86400000 * unit.n
+} else if unit.kind == "month" {
+  30.436875 * 86400000 * unit.n
+} else {
+  _MS-PER.at(unit.kind) * unit.n
 }
 
-/// Calendar ticks across `[lo, hi]`, aiming for about `target` of them.
+/// Roughly how many ticks `unit` yields over `span` milliseconds.
+#let _count-for(span, unit) = span / _approx-ms(unit)
+
+/// Every tick of `unit` in `[lo, hi]`, on that unit's own boundaries.
+#let _ticks-of(lo, hi, unit, guard: 500) = {
+  let out = ()
+  let t = _first-tick(lo, unit)
+  if t == none { return out }
+  let n = 0
+  while t != none and t.ms <= hi and n < guard {
+    out.push(t.ms)
+    t = _next-tick(t, unit)
+    n += 1
+  }
+  out
+}
+
+/// The unit to draw unlabelled ticks at, one step under `major`.
+///
+/// A time axis labelled only by year says nothing about where the quarters
+/// fall; unlabelled ticks give the reader that resolution without adding
+/// clutter. The finest unit that divides `major` into at most `_MAX-SUBDIVISIONS`
+/// parts, so a year subdivides into quarters rather than into twelve months,
+/// and a half-year into months.
+#let _MAX-SUBDIVISIONS = 7
+
+#let _minor-for(major, min-gap) = {
+  let major-ms = _approx-ms(major)
+  let chosen = none
+  for unit in _UNITS {
+    // Never subdivide past the data. A monthly series gains nothing from weekly
+    // ticks: they mark positions no observation can occupy, and they do not even
+    // line up with the months they sit between.
+    if min-gap != none and _approx-ms(unit) < min-gap * 0.9 { continue }
+    let ratio = major-ms / _approx-ms(unit)
+    // `> 1.5` skips units equal to or barely finer than the major.
+    if ratio > 1.5 and ratio <= _MAX-SUBDIVISIONS + 0.5 { chosen = unit }
+  }
+  chosen
+}
+
+/// Calendar ticks across `[lo, hi]`, aiming for about `target` labelled ones.
+///
+/// `min-gap` is the smallest spacing between two observations, in
+/// milliseconds. It caps how fine the unlabelled ticks may go, so a monthly
+/// series does not get weekly ticks marking positions its data cannot take.
 ///
 /// Returns `(ticks: (..ms), level: n)` — `level` being flint's own format
 /// level, so the caller can label them with core's `level_to_format` and get a
 /// granularity that matches the tick unit. Returns `none` when the range is
 /// degenerate or outside datehog's representable span.
-#let calendar-ticks(lo, hi, target: 6) = {
+#let calendar-ticks(lo, hi, target: 6, min-gap: none) = {
   if lo == none or hi == none or hi <= lo { return none }
   let span = hi - lo
 
@@ -135,16 +180,17 @@
   // fewest ticks available.
   if chosen == none { chosen = _UNITS.first() }
 
-  let ticks = ()
-  let t = _first-tick(lo, chosen)
-  if t == none { return none }
-  // `max-ticks` guards against a pathological range producing millions.
-  let guard = 0
-  while t != none and t.ms <= hi and guard < 500 {
-    ticks.push(t.ms)
-    t = _next-tick(t, chosen)
-    guard += 1
-  }
+  // The guard stops a pathological range from producing millions of ticks.
+  let ticks = _ticks-of(lo, hi, chosen)
   if ticks.len() == 0 { return none }
-  (ticks: ticks, level: chosen.level)
+
+  // Unlabelled ticks one unit down, minus any that a labelled tick already
+  // sits on — lilaq draws both, so a shared position would be drawn twice.
+  let minor = _minor-for(chosen, min-gap)
+  let subticks = if minor == none { () } else {
+    let major-set = ticks.dedup()
+    _ticks-of(lo, hi, minor, guard: 2000).filter(ms => ms not in major-set)
+  }
+
+  (ticks: ticks, subticks: subticks, level: chosen.level)
 }

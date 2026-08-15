@@ -44,6 +44,13 @@
       encodings: (x: "Month", y: "Revenue"),
       semantic-types: (Month: "Month", Revenue: (semanticType: "Amount", unit: "USD")),
     ),
+    bar-zero: (
+      why: "a category whose value is zero — a bar reads by length, so its axis stays pinned to the baseline and the empty bar sits on it rather than floating above a padded axis",
+      chart-type: "Bar Chart",
+      data: (("Month", "Revenue"), ("Jan", 12000.0), ("Feb", 0.0), ("Mar", 15500.0)),
+      encodings: (x: "Month", y: "Revenue"),
+      semantic-types: (Month: "Month", Revenue: "Amount"),
+    ),
     grouped-bar: (
       why: "the group channel dodges the series within each band rather than drawing them on top of one another",
       chart-type: "Grouped Bar Chart",

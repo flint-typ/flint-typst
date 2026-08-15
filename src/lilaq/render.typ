@@ -232,7 +232,12 @@
     // Monday, a midnight — rather than on arbitrary instants. lilaq has no date
     // scale, so its linear locator would produce round *numbers* here; core
     // never emits tick positions because Vega-Lite's time scale did this.
-    let cal = calendar-ticks(coords.first(), coords.last(), target: target)
+    // The tightest spacing the data actually has, which bounds how far the
+    // ticks may usefully subdivide.
+    let min-gap = if coords.len() < 2 { none } else {
+      calc.min(..coords.windows(2).map(w => w.at(1) - w.at(0)))
+    }
+    let cal = calendar-ticks(coords.first(), coords.last(), target: target, min-gap: min-gap)
     if cal != none {
       args.insert("ticks", cal.ticks)
       // Label at the granularity of the *tick unit*, not of the data. Core's
@@ -255,9 +260,15 @@
           if m == none { [#ms] } else { [#_strftime(m, tick-pattern)] }
         }))
       }
-      // Nothing meaningful sits between two calendar boundaries at the chosen
-      // granularity.
-      args.insert("subticks", none)
+      // Unlabelled ticks at the next calendar unit down: a year-labelled axis
+      // still shows where the quarters fall. `subticks` itself only takes a
+      // count of evenly spaced divisions, which months and quarters are not, so
+      // the positions go through `locate-subticks`.
+      if cal.subticks.len() > 0 {
+        args.insert("locate-subticks", (x0, x1, ..a) => (ticks: cal.subticks))
+      } else {
+        args.insert("subticks", none)
+      }
       return args
     }
 
@@ -321,7 +332,34 @@
 ///
 /// Returns `auto` when core expressed no opinion, which is lilaq's own default
 /// and better than a guess.
-#let limits-for(cs, values, data, banded: false) = {
+/// The decisions core does not make because they are matters of taste, not of
+/// semantics. Core is deliberately silent on all of these, so something has to
+/// choose, and it should be the reader rather than this file.
+#let DEFAULT-THEME = (
+  /// Half a band of padding at each end of a category axis that is *not*
+  /// banded. Off by default: a line already makes its own points findable, so
+  /// the padding is empty margin. A scatter over categories may prefer it on.
+  pad-categories: false,
+  /// Breathing room on a zero baseline the data actually reaches, so a point at
+  /// zero does not sit on top of the opposite spine. Ignored by marks that read
+  /// by length — a bar has to start at the axis.
+  pad-zero: true,
+  /// Which corner the legend goes in, or `auto` to pick the emptiest one.
+  legend-position: auto,
+)
+
+/// Axis limits from core's decisions.
+///
+/// `anchored` is whether the mark reads by *length* along this axis, in core's
+/// own vocabulary (`markCognitiveChannel`). It is the difference between a
+/// limit that is required and one that is merely convenient: a bar measured
+/// from a baseline must touch it, a scatter point need only have it in view.
+///
+/// The distinction matters because in lilaq an explicit limit also switches off
+/// the automatic margin on that side (`diagram.margin`, applied only where a
+/// limit is `auto`). So pinning an end for semantic reasons silently removes
+/// the padding too, which is how a point at x = 0 ends up drawn on the y axis.
+#let limits-for(cs, values, data, banded: false, anchored: true, theme: DEFAULT-THEME) = {
   if falsy(cs) { return auto }
   if is-discrete(cs) {
     // The band count is the number of *categories*, not the number of rows —
@@ -336,6 +374,7 @@
     // padding is just empty margin before the first point and after the last.
     // Core already decided which axes are banded (`declareLayoutMode`).
     if banded { return (-0.6, n - 0.4) }
+    if theme.pad-categories { return (-0.5, n - 0.5) }
     return (0, n - 1)
   }
   let dc = cs.at("domainConstraint", default: none)
@@ -353,6 +392,13 @@
     // headroom. Pinning both ends to the data range clips the tallest bar.
     let lo = calc.min(..nums)
     let hi = calc.max(..nums)
+    // A mark that reads by position needs zero *in view*, not underfoot. When
+    // the data stops short of zero, pinning the end there does both at once. It
+    // is only when the data reaches zero exactly that the pin costs the
+    // padding, and the point lands on the opposite spine — there, `auto`
+    // includes zero just as well and keeps the margin.
+    let touches-zero = lo == 0 or hi == 0
+    if not anchored and theme.pad-zero and touches-zero { return auto }
     if lo >= 0 { return (0, auto) }
     if hi <= 0 { return (auto, 0) }
     return auto  // data spans zero; it is already included
@@ -388,8 +434,58 @@
   ))
 }
 
+/// The emptiest corner, for the legend to sit in.
+///
+/// Ours; lilaq places the legend at `top + right` unconditionally and has no
+/// equivalent of matplotlib's `loc="best"`, so on a rising series it lands on
+/// the data. This counts how many points fall in each corner and takes the
+/// quietest, preferring lilaq's own default on a tie.
+#let legend-corner(xs, ys, anchored: false) = {
+  let pts = ()
+  for i in range(calc.min(xs.len(), ys.len())) {
+    let (x, y) = (xs.at(i), ys.at(i))
+    if x == none or y == none or not is-finite(x) or not is-finite(y) { continue }
+    pts.push((x, y))
+  }
+  if pts.len() == 0 { return top + right }
+  let xs-f = pts.map(p => p.at(0))
+  let ys-f = pts.map(p => p.at(1))
+  let (x0, x1) = (calc.min(..xs-f), calc.max(..xs-f))
+  let (y0, y1) = (calc.min(..ys-f), calc.max(..ys-f))
+  let xr = if x1 == x0 { 1 } else { x1 - x0 }
+  let yr = if y1 == y0 { 1 } else { y1 - y0 }
+  // How much of each edge the legend is assumed to cover.
+  let zone = 0.3
+  let occupancy(hi-x, hi-y) = pts.filter(p => {
+    let u = (p.at(0) - x0) / xr
+    let v = (p.at(1) - y0) / yr
+    let in-x = if hi-x { u > 1 - zone } else { u < zone }
+    let in-y = if hi-y { v > 1 - zone } else { v < zone }
+    in-x and in-y
+  }).len()
+  // A mark that reads by length is filled all the way down to its baseline, so
+  // the bottom corners are never actually free however few points sit there.
+  let candidates = if anchored {
+    ((top + right, occupancy(true, true)), (top + left, occupancy(false, true)))
+  } else {
+    (
+      (top + right, occupancy(true, true)),
+      (top + left, occupancy(false, true)),
+      (bottom + right, occupancy(true, false)),
+      (bottom + left, occupancy(false, false)),
+    )
+  }
+  let best = candidates.first()
+  for c in candidates { if c.at(1) < best.at(1) { best = c } }
+  best.at(0)
+}
+
 /// Assemble the diagram from a plan and the marks a template produced.
-#let diagram-for(plan, marks) = {
+#let diagram-for(plan, marks, mark-reads: "position", theme: DEFAULT-THEME) = {
+  let theme = DEFAULT-THEME + theme
+  // Core's word for a mark measured from a baseline rather than placed at a
+  // coordinate: a bar or an area, as against a line or a scatter point.
+  let anchored = mark-reads == "length"
   let cs = plan.channelSemantics
   let layout = plan.layout
   let axis-flags = {
@@ -402,6 +498,7 @@
   }
   let x-cs = cs.at("x", default: none)
   let y-cs = cs.at("y", default: none)
+  let length-axis = if is-banded("y") { "x" } else { "y" }
 
   // `numeric-column` already maps a discrete channel onto its band positions.
   let x-values = numeric-column(plan.data, x-cs)
@@ -414,8 +511,18 @@
     ylabel: axis-label(y-cs),
     xscale: scale-for(x-cs),
     yscale: scale-for(y-cs),
-    xlim: limits-for(x-cs, x-values, plan.data, banded: is-banded("x")),
-    ylim: limits-for(y-cs, y-values, plan.data, banded: is-banded("y")),
+    // Only the axis the length actually runs along is anchored: a bar's value
+    // axis, not its category axis. That is the axis opposite the banded one,
+    // and y when neither is banded — an area over a temporal x still grows
+    // upwards from its baseline.
+    xlim: limits-for(
+      x-cs, x-values, plan.data,
+      banded: is-banded("x"), anchored: anchored and length-axis == "x", theme: theme,
+    ),
+    ylim: limits-for(
+      y-cs, y-values, plan.data,
+      banded: is-banded("y"), anchored: anchored and length-axis == "y", theme: theme,
+    ),
     // `xaxis`/`yaxis` take an argument *dictionary*, which lilaq spreads into
     // its own `axis()` — passing a constructed `lq.axis` re-spreads the
     // element's own fields and it rejects them.
@@ -442,7 +549,11 @@
     // lilaq draws a legend for any labelled plot; `(:)` is its default and
     // means "show one if there is anything to show". Only suppress it when
     // there is a single unlabelled series.
-    legend: if series-groups(plan).len() > 1 { (:) } else { none },
+    legend: if series-groups(plan).len() <= 1 { none } else if theme.legend-position == auto {
+      (position: legend-corner(x-values, y-values, anchored: anchored))
+    } else {
+      (position: theme.legend-position)
+    },
     ..marks,
   )
 }

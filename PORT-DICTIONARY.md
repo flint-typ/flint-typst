@@ -99,9 +99,16 @@ are not divergences from flint-py — core's output is unchanged — but they ar
 places the backend is deciding something rather than transcribing it, so they
 are recorded.
 
+Where the choice is a matter of taste rather than of correctness it is exposed
+as `theme` on `chart()` (see `DEFAULT-THEME` in `lilaq/render.typ`) rather than
+settled here.
+
 | where | what core does | what the backend must add |
 |---|---|---|
+| `lilaq/time-ticks.typ` (subticks) | nothing — VL's time scale subdivided its own ticks | unlabelled ticks go one calendar unit below the labelled ones, at most `_MAX-SUBDIVISIONS` per label, so a year-labelled axis shows quarters and a half-year-labelled one months. Capped by the data's own spacing: a monthly series gets no weekly ticks, since they mark positions no observation can occupy. |
 | `lilaq/time-ticks.typ` | decides the tick *format* (`temporalFormat`) but never tick *positions* — VL's time scale places calendar-aware ticks itself | lilaq has no date scale; a temporal channel arrives as epoch milliseconds and its linear locator returns round *numbers*, landing on arbitrary instants ("Jan 01 2020, Aug 07 2020, Mar 14 2021"). The backend picks a calendar unit (year/quarter/month/week/day/hour/minute/second), snaps to its boundaries, and labels at the granularity of the unit via core's own `level_to_format`. |
+| `lilaq/render.typ` `limits-for` | decides that a scale must *include* zero (`zero`), and which mark reads by length rather than by position (`markCognitiveChannel`) | in lilaq an explicit limit also switches off the automatic margin on that side, so pinning an end for core's reason silently removes the padding and draws a point at zero on top of the opposite spine. The backend pins only where the mark is measured from that baseline; elsewhere `auto` includes zero and keeps the margin. |
+| `lilaq/render.typ` `legend-corner` | nothing — legend placement is not a semantic decision | lilaq places the legend at `top + right` unconditionally, with no equivalent of matplotlib's `loc="best"`, so on a rising series it lands on the data. The backend counts points per corner and takes the quietest; for a `length` mark only the top corners are considered, since the area under a bar is filled whatever the point count says. |
 | `lilaq/render.typ` `angled-label` | omits `labelAngle` in one branch, its comment noting this "leaves VL defaults (e.g. -45 on ordinal)" | lilaq has no such default, so the backend supplies -45deg when a label outgrows its band — and anchors it by its end. lilaq places a bottom-axis label `top + center` on the tick (`model/axis.typ`), which centres the *rotated* bounding box and leaves the text beside its own bar. `rotate(origin: ...)` cannot fix that alone; the label goes in a zero-width box so the centring has nothing to centre. |
 
 ## Timezone policy
